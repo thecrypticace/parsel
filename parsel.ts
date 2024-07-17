@@ -3,6 +3,7 @@ export const TOKENS: Record<string, RegExp> = {
 		/\[\s*(?:(?<namespace>\*|[-\w\P{ASCII}]*)\|)?(?<name>[-\w\P{ASCII}]+)\s*(?:(?<operator>\W?=)\s*(?<value>.+?)\s*(\s(?<caseSensitive>[iIsS]))?\s*)?\]/gu,
 	id: /#(?<name>[-\w\P{ASCII}]+)/gu,
 	class: /\.(?<name>[-\w\P{ASCII}]+)/gu,
+	nesting: /\s*&\s*/g,
 	comma: /\s*,\s*/g, // must be before combinator
 	combinator: /\s*[\s>+~]\s*/g, // this must be after attribute
 	'pseudo-element': /::(?<name>[-\w\P{ASCII}]+)(?:\((?<argument>¶*)\))?/gu, // this must be before pseudo-class
@@ -11,7 +12,7 @@ export const TOKENS: Record<string, RegExp> = {
 	type: /(?:(?<namespace>\*|[-\w\P{ASCII}]*)\|)?(?<name>[-\w\P{ASCII}]+)/gu, // this must be last
 };
 
-export const TRIM_TOKENS = new Set<string>(['combinator', 'comma']);
+export const TRIM_TOKENS = new Set<string>(['combinator', 'comma', 'nesting']);
 
 export const RECURSIVE_PSEUDO_CLASSES = new Set<string>([
 	'not',
@@ -510,6 +511,9 @@ export interface BaseToken {
 	pos: [number, number];
 }
 
+export interface NestingToken extends BaseToken {
+	type: 'comma';
+}
 export interface CommaToken extends BaseToken {
 	type: 'comma';
 }
@@ -568,6 +572,7 @@ export type Token =
 	| AttributeToken
 	| IdToken
 	| ClassToken
+	| NestingToken
 	| CommaToken
 	| CombinatorToken
 	| PseudoElementToken
